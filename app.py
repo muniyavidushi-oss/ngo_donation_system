@@ -2,16 +2,21 @@ from flask import Flask, render_template, request, redirect, session
 import sqlite3
 import random
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 app.secret_key = "secret123"
 
 
-# ---------------- DB CONNECTION ----------------
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "database.db")
+
 def get_db_connection():
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
 
 
 # ---------------- AUTH PAGE ----------------
@@ -41,11 +46,25 @@ def register():
         conn.close()
         return render_template("auth.html", register_error="Email already registered")
 
+    created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    role = "admin" if email.endswith("@ngo.com") else "user"
+
     conn.execute("""
-        INSERT INTO users
-        (name, email, password, phone, address, aadhaar, role, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    """, (name, email, password, phone, address, aadhaar, "user", datetime.now()))
+INSERT INTO users 
+(name, email, password, role, created_at, phone, address, aadhaar)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+""", (
+    name,
+    email,
+    password,
+    role,
+    created_at,
+    phone,
+    address,
+    aadhaar
+))
+
+
 
     conn.commit()
     conn.close()
