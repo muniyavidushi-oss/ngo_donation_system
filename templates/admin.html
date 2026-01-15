@@ -2,30 +2,33 @@
 <html>
 <head>
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
 </head>
 <body>
 
-    <h2 style="text-align:center;">Registered Users</h2>
+<h1 class="title">Admin Dashboard</h1>
 
-    <table border="1" cellpadding="10" cellspacing="0" align="center">
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Registered At</th>   <!-- NEW -->
-    </tr>
+<div class="cards">
 
-    {% for user in users %}
-    <tr>
-        <td>{{ user.id }}</td>
-        <td>{{ user.name }}</td>
-        <td>{{ user.email }}</td>
-        <td>{{ user.created_at }}</td>  <!-- NEW -->
-    </tr>
-    {% endfor %}
-</table>
+    <a href="/admin/users" class="card">
+    <h2>Registered Users</h2>
+    <p>View all registered users</p>
+    </a>
 
+
+    <a href="/admin/donations" class="card">
+    <h2>Donation Status</h2>
+    <p>View donation records</p>
+</a>
+
+
+    <a href="/admin/logins" class="card">
+    <h2>Login User</h2>
+    <p>View login history</p>
+</a>
+
+
+</div>
 
 </body>
 </html>

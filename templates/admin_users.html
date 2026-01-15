@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registered Users</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+<body>
+
+<h1>Registered Users</h1>
+
+<!-- TOP BLOCKS -->
+<div class="cards">
+    <div class="card">
+        <h3>Total Registrations</h3>
+        <p>{{ total_users }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Today's Registrations</h3>
+        <p>{{ today_users }}</p>
+    </div>
+</div>
+
+<!-- SEARCH BAR -->
+<form method="GET" class="search-box">
+    <input type="text" name="search" placeholder="Search by name, email or phone"
+           value="{{ search }}">
+    <button type="submit">Search</button>
+</form>
+
+<!-- USERS TABLE -->
+<table>
+    <thead>
+        <tr>
+            <th>S.No</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th>Aadhaar</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.phone }}</td>
+            <td>{{ user.address }}</td>
+            <td>{{ user.aadhaar }}</td>
+            <td>{{ user.date }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>

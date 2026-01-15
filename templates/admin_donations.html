@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Donation Status</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+<body>
+
+<h1>Donation Status</h1>
+
+<!-- TOP BLOCKS -->
+<div class="cards">
+    <div class="card">
+        <h3>Total Donations</h3>
+        <p>{{ total_donations }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Today's Donations</h3>
+        <p>{{ today_donations }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Total Amount Received</h3>
+        <p>₹ {{ total_amount }}</p>
+    </div>
+</div>
+
+<!-- SEARCH BAR -->
+<form method="GET" class="search-box">
+    <input type="text" name="search"
+           placeholder="Search by name, email, status or date"
+           value="{{ search }}">
+    <button type="submit">Search</button>
+</form>
+
+<!-- DONATION TABLE -->
+<table>
+    <thead>
+        <tr>
+            <th>S.No</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for d in donations %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ d.name }}</td>
+            <td>{{ d.email }}</td>
+            <td>₹ {{ d.amount }}</td>
+            <td>{{ d.status }}</td>
+            <td>{{ d.date }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>

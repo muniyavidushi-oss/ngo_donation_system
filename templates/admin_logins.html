@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Users</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+<body>
+
+<h1>Login Users</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>S.No</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for l in logins %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ l.name }}</td>
+            <td>{{ l.email }}</td>
+            <td>{{ l.date }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>

@@ -1,1 +1,9 @@
+# Ignore old database files
+olddatabase.db
 database.db
+
+# Ignore admin-panel folder
+admin-panel/
+
+
+
