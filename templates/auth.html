@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login or Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h2 style="text-align:center;">Welcome to NGO Donation System</h2>
+
+<!-- LOGIN SECTION -->
+<div class="box">
+    <h3>Login</h3>
+
+    <form method="POST" action="/login">
+        <label>Email:</label><br>
+        <input type="email" name="email" required><br><br>
+
+        <label>Password:</label><br>
+        <input type="password" name="password" required><br><br>
+
+        <button type="submit">Login</button>
+    </form>
+
+    {% if login_error %}
+        <p style="color:red;">{{ login_error }}</p>
+    {% endif %}
+</div>
+
+<p class="or-text">OR</p>
+
+
+<!-- REGISTER SECTION -->
+<div class="box">
+    <h3>Not Registered? Create Account</h3>
+
+    <form method="POST" action="/register">
+        <label>Name:</label><br>
+        <input type="text" name="name" required><br><br>
+
+        <label>Email:</label><br>
+        <input type="email" name="email" required><br><br>
+
+        <label>Password:</label><br>
+        <input type="password" name="password" required><br><br>
+
+        <label>Phone:</label><br>
+        <input type="text" name="phone" required><br><br>
+
+        <label>Address:</label><br>
+        <textarea name="address" required></textarea><br><br>
+
+        <label>Aadhaar:</label><br>
+        <input type="text" name="aadhaar" required><br><br>
+
+        <button type="submit">Register</button>
+    </form>
+
+    {% if register_error %}
+        <p style="color:red;">{{ register_error }}</p>
+    {% endif %}
+</div>
+
+</body>
+</html>

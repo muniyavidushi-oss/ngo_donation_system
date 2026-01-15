@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Donation History</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="box">
+    <h2>Your Donation History</h2>
+
+    {% if donations %}
+    <table border="1" cellpadding="10" cellspacing="0" width="100%">
+        <tr>
+            <th>Amount (₹)</th>
+            <th>Status</th>
+            <th>Date</th>
+        </tr>
+
+        {% for d in donations %}
+        <tr>
+            <td>{{ d.amount }}</td>
+            <td>{{ d.status }}</td>
+            <td>{{ d.timestamp }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <p>No donations made yet.</p>
+    {% endif %}
+</div>
+
+</body>
+</html>

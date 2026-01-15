@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="box">
+    <h2>Hello, {{ user.name }}</h2>
+
+    <h3>Your Details</h3>
+    <p><b>Email:</b> {{ user.email }}</p>
+    <p><b>Phone:</b> {{ user.phone }}</p>
+    <p><b>Address:</b> {{ user.address }}</p>
+    <p><b>Aadhaar:</b> {{ user.aadhaar }}</p>
+</div>
+
+<div class="box">
+    <h3>Make a Donation</h3>
+
+    <form method="POST" action="/donate">
+        <label>Donation Amount (₹):</label><br>
+        <input type="number" name="amount" required><br><br>
+
+        <button type="submit">Donate</button>
+    </form>
+
+    <p style="font-size:12px;">
+        * Payment will be processed securely via payment gateway
+    </p>
+</div>
+
+<div class="box">
+    <a href="/history">View Donation History</a>
+</div>
+
+
+</body>
+</html>
