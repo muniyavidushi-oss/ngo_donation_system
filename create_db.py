@@ -44,6 +44,23 @@ CREATE TABLE IF NOT EXISTS login_logs (
 );
 """)
 
+# ---------------- FIX EXISTING DATA ----------------
+# Fill NULL created_at values in donations table
+cur.execute("""
+    UPDATE donations 
+    SET created_at = CURRENT_TIMESTAMP 
+    WHERE created_at IS NULL OR created_at = ''
+""")
+print(f"✅ Updated {cur.rowcount} donation records with dates")
+
+# Fill NULL created_at values in login_logs table
+cur.execute("""
+    UPDATE login_logs 
+    SET created_at = CURRENT_TIMESTAMP 
+    WHERE created_at IS NULL OR created_at = ''
+""")
+print(f"✅ Updated {cur.rowcount} login records with dates")
+
 conn.commit()
 conn.close()
 
