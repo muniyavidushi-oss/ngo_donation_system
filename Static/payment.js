@@ -20,7 +20,6 @@ function makeDonation() {
         .then(obj => {
             console.log("Received payment data:", obj);
 
-            // Verify all required fields are present
             if (!obj.order_id || !obj.amount) {
                 console.error("Missing required fields:", obj);
                 alert("Payment initialization failed: Missing required data");
@@ -36,7 +35,6 @@ function makeDonation() {
                 order_id: obj.order_id,
                 handler: function(response) {
                     console.log("Payment completed:", response);
-                    // Send payment details to backend for verification
                     fetch('/payment_success', {
                         method: 'POST',
                         headers: {
@@ -52,7 +50,9 @@ function makeDonation() {
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
-                            window.location.href = `/payment_success?order_id=${response.razorpay_order_id}&amount=${obj.amount}`;
+                            // FIX: Redirect to dashboard instead of payment_success
+                            alert("Payment successful! Thank you for your donation.");
+                            window.location.href = `/dashboard`;  // Changed this line
                         } else {
                             alert("Payment verification failed");
                         }
@@ -76,7 +76,6 @@ function makeDonation() {
                 modal: {
                     ondismiss: function() {
                         console.log("Payment dismissed by user");
-                        // Record failed/cancelled payment
                         fetch('/payment_failed', {
                             method: 'POST',
                             headers: {
@@ -98,7 +97,6 @@ function makeDonation() {
 
             console.log("Payment options:", options);
 
-            // Check if Razorpay is loaded
             if (typeof Razorpay === 'undefined') {
                 alert("Razorpay library not loaded. Please refresh the page.");
                 return;
@@ -110,7 +108,6 @@ function makeDonation() {
             rzp.on('payment.failed', function(response) {
                 console.error("Razorpay Error:", response.error);
                 
-                // Record failed payment
                 fetch('/payment_failed', {
                     method: 'POST',
                     headers: {
