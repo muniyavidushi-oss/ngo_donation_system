@@ -76,7 +76,8 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     conn.commit()
     conn.close()
 
-    return redirect("/")
+    return render_template("register_success.html")
+
 
 
 # ---------------- LOGIN ----------------
@@ -418,23 +419,30 @@ def admin_users():
 
     conn = get_db_connection()
 
-    # Total registrations
+    # ✅ Total registrations (ONLY users)
     total_users = conn.execute(
-        "SELECT COUNT(*) FROM users"
+        "SELECT COUNT(*) FROM users WHERE role = 'user'"
     ).fetchone()[0]
 
-    # Today's registrations
+    # ✅ Today's registrations (ONLY users)
     today_users = conn.execute(
-        "SELECT COUNT(*) FROM users WHERE DATE(created_at)=DATE('now')"
+        """
+        SELECT COUNT(*) FROM users
+        WHERE role = 'user'
+        AND DATE(created_at) = DATE('now')
+        """
     ).fetchone()[0]
 
-    # User list with search
+    #  User list with search (EXCLUDE admin)
     users = conn.execute("""
         SELECT id, name, email, phone, address, aadhaar, DATE(created_at) as date
         FROM users
-        WHERE name LIKE ?
-           OR email LIKE ?
-           OR phone LIKE ?
+        WHERE role = 'user'
+        AND (
+            name LIKE ?
+            OR email LIKE ?
+            OR phone LIKE ?
+        )
         ORDER BY created_at DESC
     """, (
         f"%{search}%",
@@ -451,6 +459,7 @@ def admin_users():
         users=users,
         search=search
     )
+
 
 @app.route("/admin/donations")
 def admin_donations():
