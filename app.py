@@ -3,6 +3,13 @@ import sqlite3
 import random
 from datetime import datetime
 import os
+import uuid
+import hashlib
+from flask import jsonify
+import time
+import json
+import razorpay
+from razorpay.errors import SignatureVerificationError
 
 app = Flask(__name__)
 app.secret_key = "secret123"
@@ -121,7 +128,220 @@ def dashboard():
     conn.close()
 
     return render_template("dashboard.html", user=user)
+#######################################################################################################
 
+RAZORPAY_KEY_ID = "rzp_test_S4S7C7ryb9WlU6"
+RAZORPAY_KEY_SECRET = "uopveSGkMmvNF7Q6CF8JyWqO"
+
+razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+
+
+@app.route("/create_order")
+def create_order():
+    if "user_id" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    amount = request.args.get("amount")
+    if not amount:
+        return jsonify({"error": "Amount required"}), 400
+
+    # Fetch user details
+    conn = get_db_connection()
+    user = conn.execute(
+        "SELECT * FROM users WHERE id=?",
+        (session["user_id"],)
+    ).fetchone()
+    conn.close()
+
+    try:
+        # Convert amount to paise (Razorpay uses smallest currency unit)
+        # For INR: ₹100 = 10000 paise
+        amount_in_paise = int(float(amount) * 100)
+
+        # Create Razorpay order
+        razorpay_order = razorpay_client.order.create({
+            "amount": amount_in_paise,
+            "currency": "INR",
+            "receipt": f"receipt_{int(time.time())}",
+            "notes": {
+                "user_id": session["user_id"],
+                "user_email": user["email"]
+            }
+        })
+
+        print("="*50)
+        print("RAZORPAY ORDER CREATION")
+        print("="*50)
+        print(f"Order ID: {razorpay_order['id']}")
+        print(f"Amount: {amount_in_paise} paise (₹{amount})")
+        print(f"Currency: INR")
+        print(f"Status: {razorpay_order['status']}")
+        print("="*50)
+
+        response_data = {
+            "key_id": RAZORPAY_KEY_ID,
+            "order_id": razorpay_order["id"],
+            "amount": amount_in_paise,
+            "currency": "INR",
+            "name": user["name"] or "Guest User",
+            "email": user["email"],
+            "phone": user["phone"] or "",
+            "address": user["address"] or ""
+        }
+
+        print("Response JSON:")
+        print(json.dumps(response_data, indent=2))
+        print("="*50)
+
+        return jsonify(response_data)
+
+    except Exception as e:
+        print(f"Error creating Razorpay order: {str(e)}")
+        return jsonify({"error": "Failed to create order"}), 500
+
+
+@app.route("/payment_success", methods=["POST"])
+def payment_success():
+    if "user_id" not in session:
+        return jsonify({"success": False, "error": "Unauthorized"}), 401
+
+    try:
+        data = request.get_json()
+        
+        razorpay_payment_id = data.get("razorpay_payment_id")
+        razorpay_order_id = data.get("razorpay_order_id")
+        razorpay_signature = data.get("razorpay_signature")
+        amount = data.get("amount")
+
+        print("="*50)
+        print("RAZORPAY PAYMENT VERIFICATION")
+        print("="*50)
+        print(f"Payment ID: {razorpay_payment_id}")
+        print(f"Order ID: {razorpay_order_id}")
+        print("="*50)
+
+        # Verify payment signature
+        params_dict = {
+            'razorpay_order_id': razorpay_order_id,
+            'razorpay_payment_id': razorpay_payment_id,
+            'razorpay_signature': razorpay_signature
+        }
+
+        try:
+            razorpay_client.utility.verify_payment_signature(params_dict)
+            print("✅ Payment signature verified successfully")
+
+            # Convert amount back from paise to rupees
+            amount_in_rupees = float(amount) / 100
+
+            # Save donation as SUCCESS
+            conn = get_db_connection()
+            conn.execute("""
+                INSERT INTO donations (user_id, amount, status)
+                VALUES (?, ?, ?)
+            """, (session["user_id"], amount_in_rupees, "success"))
+            conn.commit()
+            conn.close()
+
+            return jsonify({"success": True})
+
+        except SignatureVerificationError as e:
+            print(f"❌ Signature verification failed: {str(e)}")
+            
+            # Save donation as FAILED
+            conn = get_db_connection()
+            conn.execute("""
+                INSERT INTO donations (user_id, amount, status)
+                VALUES (?, ?, ?)
+            """, (session["user_id"], float(amount) / 100, "failed"))
+            conn.commit()
+            conn.close()
+
+            return jsonify({"success": False, "error": "Invalid signature"}), 400
+
+    except Exception as e:
+        print(f"Error processing payment: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/payment_failed", methods=["POST"])
+def payment_failed():
+    if "user_id" not in session:
+        return jsonify({"success": False, "error": "Unauthorized"}), 401
+
+    try:
+        data = request.get_json()
+        amount = data.get("amount")
+
+        # Convert amount back from paise to rupees
+        amount_in_rupees = float(amount) / 100
+
+        print("="*50)
+        print("PAYMENT FAILED/CANCELLED")
+        print("="*50)
+        print(f"Amount: ₹{amount_in_rupees}")
+        print("="*50)
+
+        # Save donation as FAILED
+        conn = get_db_connection()
+        conn.execute("""
+            INSERT INTO donations (user_id, amount, status)
+            VALUES (?, ?, ?)
+        """, (session["user_id"], amount_in_rupees, "failed"))
+        conn.commit()
+        conn.close()
+
+        return jsonify({"success": True})
+
+    except Exception as e:
+        print(f"Error recording failed payment: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/payment_cancel")
+def payment_cancel():
+    return redirect("/dashboard")
+
+
+# Optional: Razorpay webhook for server-side notifications
+@app.route("/payment_webhook", methods=["POST"])
+def payment_webhook():
+    webhook_secret = "your_webhook_secret"  # Set in Razorpay Dashboard
+    webhook_signature = request.headers.get("X-Razorpay-Signature")
+    webhook_body = request.get_data()
+
+    try:
+        razorpay_client.utility.verify_webhook_signature(
+            webhook_body.decode('utf-8'),
+            webhook_signature,
+            webhook_secret
+        )
+
+        data = request.get_json()
+        event = data.get("event")
+
+        print("="*50)
+        print("RAZORPAY WEBHOOK RECEIVED")
+        print("="*50)
+        print(f"Event: {event}")
+        print(json.dumps(data, indent=2))
+        print("="*50)
+
+        # Handle different events
+        if event == "payment.captured":
+            payment = data.get("payload", {}).get("payment", {}).get("entity", {})
+            # Process successful payment
+            print("✅ Payment captured successfully")
+        elif event == "payment.failed":
+            payment = data.get("payload", {}).get("payment", {}).get("entity", {})
+            # Process failed payment
+            print("❌ Payment failed")
+
+        return jsonify({"status": "ok"}), 200
+
+    except SignatureVerificationError:
+        print("❌ Webhook signature verification failed")
+        return jsonify({"status": "invalid signature"}), 400
 
 # ---------------- DONATE ----------------
 @app.route("/donate", methods=["POST"])

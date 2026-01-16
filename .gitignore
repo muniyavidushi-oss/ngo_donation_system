@@ -1,6 +1,10 @@
 # Ignore old database files
 olddatabase.db
 database.db
+database_old.db
+database_old2.db
+database.db
+databaseo.db
 
 # Ignore admin-panel folder
 admin-panel/

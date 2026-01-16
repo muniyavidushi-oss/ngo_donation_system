@@ -3,7 +3,11 @@
 <head>
     <title>User Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <!-- Add Razorpay Checkout Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
+
 <body>
 
 <div class="box">
@@ -19,15 +23,15 @@
 <div class="box">
     <h3>Make a Donation</h3>
 
-    <form method="POST" action="/donate">
+    <form id="donationForm">
         <label>Donation Amount (₹):</label><br>
-        <input type="number" name="amount" required><br><br>
+        <input type="number" name="amount" id="amount" required><br><br>
 
-        <button type="submit">Donate</button>
+        <button type="button" onclick="makeDonation()">Donate</button>
     </form>
 
     <p style="font-size:12px;">
-        * Payment will be processed securely via payment gateway
+        * Payment will be processed securely via Razorpay
     </p>
 </div>
 
@@ -35,6 +39,9 @@
     <a href="/history">View Donation History</a>
 </div>
 
+<!-- Removed PayHere script, added Razorpay script in head -->
+<!-- <script type="text/javascript" src="https://www.payhere.lk/lib/payhere.js"></script> -->
 
+<script src="{{ url_for('static', filename='payment.js') }}"></script>
 </body>
 </html>
