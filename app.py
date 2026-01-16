@@ -10,6 +10,10 @@ import time
 import json
 import razorpay
 from razorpay.errors import SignatureVerificationError
+from flask import Response
+import sqlite3
+import csv
+from io import StringIO
 
 app = Flask(__name__)
 app.secret_key = "secret123"
@@ -18,6 +22,8 @@ app.secret_key = "secret123"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")
+
+
 
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
@@ -317,7 +323,7 @@ def payment_success():
             return jsonify({"success": True})
 
         except SignatureVerificationError as e:
-            print(f"❌ Signature verification failed: {str(e)}")
+            print(f" Signature verification failed: {str(e)}")
             
             # Save donation as FAILED
             conn = get_db_connection()
@@ -406,12 +412,12 @@ def payment_webhook():
         elif event == "payment.failed":
             payment = data.get("payload", {}).get("payment", {}).get("entity", {})
             # Process failed payment
-            print("❌ Payment failed")
+            print(" Payment failed")
 
         return jsonify({"status": "ok"}), 200
 
     except SignatureVerificationError:
-        print("❌ Webhook signature verification failed")
+        print(" Webhook signature verification failed")
         return jsonify({"status": "invalid signature"}), 400
 
 # ---------------- DONATE ----------------
@@ -444,12 +450,11 @@ def history():
     donations = conn.execute("""
         SELECT * FROM donations
         WHERE user_id=?
-        ORDER BY timestamp DESC
+        ORDER BY created_at DESC
     """, (session["user_id"],)).fetchall()
     conn.close()
 
     return render_template("history.html", donations=donations)
-
 
 # ---------------- ADMIN DASHBOARD ----------------
 @app.route("/admin")
@@ -545,9 +550,9 @@ def admin_donations():
         "SELECT COUNT(*) FROM donations"
     ).fetchone()[0]
 
-    # Today's donations
+    # Today's donations - FIXED: changed timestamp to created_at
     today_donations = conn.execute(
-        "SELECT COUNT(*) FROM donations WHERE DATE(timestamp)=DATE('now')"
+        "SELECT COUNT(*) FROM donations WHERE DATE(created_at)=DATE('now')"
     ).fetchone()[0]
 
     # Total successful donation amount
@@ -555,20 +560,20 @@ def admin_donations():
         "SELECT COALESCE(SUM(amount),0) FROM donations WHERE status='success'"
     ).fetchone()[0]
 
-    # Donation records with search
+    # Donation records with search - FIXED: changed timestamp to created_at
     donations = conn.execute("""
         SELECT users.name,
                users.email,
                donations.amount,
                donations.status,
-               DATE(donations.timestamp) as date
+               DATE(donations.created_at) as date
         FROM donations
         JOIN users ON donations.user_id = users.id
         WHERE users.name LIKE ?
            OR users.email LIKE ?
            OR donations.status LIKE ?
-           OR DATE(donations.timestamp) LIKE ?
-        ORDER BY donations.timestamp DESC
+           OR DATE(donations.created_at) LIKE ?
+        ORDER BY donations.created_at DESC
     """, (
         f"%{search}%",
         f"%{search}%",
@@ -594,21 +599,99 @@ def admin_logins():
 
     conn = get_db_connection()
 
+    # FIXED: changed timestamp to created_at
     logins = conn.execute("""
         SELECT users.name,
                users.email,
-               DATE(login_logs.timestamp) AS date
+               DATE(login_logs.created_at) AS date
         FROM login_logs
         JOIN users ON login_logs.user_id = users.id
         WHERE users.email NOT LIKE '%@ngo%'
-        ORDER BY login_logs.timestamp DESC
+        ORDER BY login_logs.created_at DESC
     """).fetchall()
 
     conn.close()
 
     return render_template("admin_logins.html", logins=logins)
 
+############################################################
+@app.route("/download/users")
+def download_users():
+    if "role" not in session or session["role"] != "admin":
+        return redirect("/")
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
+    # FIXED: Use correct table and column names
+    cursor.execute("""
+        SELECT name, email, phone, address, aadhaar, DATE(created_at) as date
+        FROM users
+        ORDER BY created_at DESC
+    """)
+    rows = cursor.fetchall()
+
+    # Custom headers for nice display
+    headers = ["Name", "Email", "Phone", "Address", "Aadhaar", "Date"]
+    conn.close()
+
+    si = StringIO()
+    writer = csv.writer(si)
+
+    writer.writerow(headers)
+    for row in rows:
+        writer.writerow(row)
+
+    return Response(
+        si.getvalue(),
+        mimetype="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=registered_users.csv"
+        }
+    )
+
+#######################################################################################
+
+@app.route("/download/donations")
+def download_donations():
+    if "role" not in session or session["role"] != "admin":
+        return redirect("/")
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # FIXED: Use correct column names and JOIN with users table
+    cursor.execute("""
+        SELECT 
+            u.name,
+            u.email,
+            d.amount,
+            d.status,
+            DATE(d.created_at) as date
+        FROM donations d
+        JOIN users u ON d.user_id = u.id
+        ORDER BY d.created_at DESC
+    """)
+    rows = cursor.fetchall()
+
+    # Custom headers for nice display
+    headers = ["Name", "Email", "Amount", "Status", "Date"]
+    conn.close()
+
+    si = StringIO()
+    writer = csv.writer(si)
+
+    writer.writerow(headers)
+    for row in rows:
+        writer.writerow(row)
+
+    return Response(
+        si.getvalue(),
+        mimetype="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=donations.csv"
+        }
+    )
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
