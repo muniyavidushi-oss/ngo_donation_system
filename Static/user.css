@@ -64,18 +64,16 @@ a {
     width: 90%;
     max-width: 1100px;
     margin: 40px auto;
-    padding: 30px;            /* 👈 important */
-    box-sizing: border-box;   /* 👈 important */
+    padding: 30px;           
+    box-sizing: border-box;  
 }
 
 /* TABLE */
 .history-table {
-    width: 100%;              /* 👈 force full width */
-    table-layout: fixed;      /* 👈 prevents shrinking */
+    width: 100%;              
+    table-layout: fixed;      
 }
 
-
-/* FORCE SAME STYLE FOR ALL CELLS */
 .history-table th,
 .history-table td {
     background: rgba(0, 0, 0, 0.55) !important;
@@ -85,18 +83,17 @@ a {
     text-align: center;
 }
 
-/* REMOVE ALTERNATING ROW COLORS COMPLETELY */
 .history-table tr:nth-child(even),
 .history-table tr:nth-child(odd) {
     background: transparent !important;
 }
 
-/* OPTIONAL: hover (still same theme) */
+
 .history-table tr:hover td {
     background: rgba(0, 0, 0, 0.65) !important;
 }
 
-/* Top Navigation Bar */
+/*nvigation bar same for all*/
 .top-navbar {
     position: fixed;
     top: 0;
@@ -238,6 +235,7 @@ body {
     padding-top: 70px;
 }
 
+/*extra additions done*/
 /* Mobile Menu Toggle Button (Hamburger) */
 .mobile-menu-toggle {
     display: none;

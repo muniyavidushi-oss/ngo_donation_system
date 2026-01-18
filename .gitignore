@@ -7,6 +7,9 @@ database.db
 databaseo.db
 database1.db
 database2.db
+d.db
+data.db
+dont.db
 
 # Ignore admin-panel folder
 admin-panel/

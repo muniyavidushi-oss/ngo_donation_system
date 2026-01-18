@@ -100,12 +100,12 @@ def login():
         (email, password)
     ).fetchone()
 
-    # ❌ invalid credentials
+    #  invalid credentials
     if not user:
         conn.close()
         return render_template("login.html", login_error="Invalid credentials")
 
-    # ✅ INSERT LOGIN LOG
+    #  INSERT LOGIN LOG
     conn.execute(
         "INSERT INTO login_logs (user_id) VALUES (?)",
         (user["id"],)
@@ -113,7 +113,7 @@ def login():
     conn.commit()
     conn.close()
 
-    # ✅ set session
+    #  set session
     session["user_id"] = user["id"]
     session["role"] = user["role"]
 
@@ -125,7 +125,7 @@ def login():
 
 
 
-
+##############route forget password###########################
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
     if request.method == "POST":
@@ -214,6 +214,9 @@ def dashboard():
     return render_template("dashboard.html", user=user)
 
 ##################################################################
+##########################payment gateway by razorpay test###########################################
+
+
 RAZORPAY_KEY_ID = "rzp_test_S4S7C7ryb9WlU6"
 RAZORPAY_KEY_SECRET = "uopveSGkMmvNF7Q6CF8JyWqO"
 
@@ -238,8 +241,7 @@ def create_order():
     conn.close()
 
     try:
-        # Convert amount to paise (Razorpay uses smallest currency unit)
-        # For INR: ₹100 = 10000 paise
+        
         amount_in_paise = int(float(amount) * 100)
 
         # Create Razorpay order
@@ -282,6 +284,8 @@ def create_order():
     except Exception as e:
         print(f"Error creating Razorpay order: {str(e)}")
         return jsonify({"error": "Failed to create order"}), 500
+
+############################################successs payment
 
 
 @app.route("/payment_success", methods=["POST"])
@@ -346,6 +350,8 @@ def payment_success():
     except Exception as e:
         print(f"Error processing payment: {str(e)}")
         return jsonify({"success": False, "error": str(e)}), 500
+
+###########################################route failed###############################
 
 
 @app.route("/payment_failed", methods=["POST"])
@@ -414,11 +420,11 @@ def payment_webhook():
         # Handle different events
         if event == "payment.captured":
             payment = data.get("payload", {}).get("payment", {}).get("entity", {})
-            print("✅ Payment captured successfully")
+            print(" Payment captured successfully")
         elif event == "payment.failed":
             payment = data.get("payload", {}).get("payment", {}).get("entity", {})
             # Process failed payment
-            print("❌ Payment failed")
+            print(" Payment failed")
 
         return jsonify({"status": "ok"}), 200
 
@@ -478,6 +484,8 @@ def admin():
         users=users
     )
 
+##################################admin_user
+
 @app.route("/admin/users")
 def admin_users():
     if "role" not in session or session["role"] != "admin":
@@ -528,6 +536,7 @@ def admin_users():
         search=search
     )
 
+#########################################admin_donations
 
 @app.route("/admin/donations")
 def admin_donations():
@@ -585,6 +594,9 @@ def admin_donations():
         search=search
     )
 
+##########################################admin login
+
+
 @app.route("/admin/logins")
 def admin_logins():
     if "user_id" not in session:
@@ -608,6 +620,9 @@ def admin_logins():
     return render_template("admin_logins.html", logins=logins)
 
 ############################################################
+###################csv download##########################
+
+
 @app.route("/download/users")
 def download_users():
     if "role" not in session or session["role"] != "admin":
