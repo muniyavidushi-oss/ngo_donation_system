@@ -1,0 +1,367 @@
+body {
+    background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+        url("/static/images/poverty.jpeg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    color: white;
+}
+
+.box {
+    width: 400px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 20px;
+    margin: 20px auto;
+    margin-left: 100px;
+    margin-right: auto;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+h2, h3 {
+    text-align: center;
+   
+}
+
+input, textarea, button {
+    width: 90%;
+    padding: 8px;
+    margin-top: 5px;
+}
+
+button {
+    background-color: #fafa0f;
+    color: rgb(15, 15, 15);
+    border: none;
+    cursor: pointer;
+    width: 95%;
+}
+
+button:hover {
+    background-color: #f7fa48;
+}
+
+.or-text {
+    text-align: center;
+    font-weight: bold;
+    margin: 10px;
+}
+a {
+    color: white;
+    text-decoration: none; /* optional: removes underline */
+}
+
+/* TABLE */
+.history-box {
+    width: 90%;
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 30px;            /* 👈 important */
+    box-sizing: border-box;   /* 👈 important */
+}
+
+/* TABLE */
+.history-table {
+    width: 100%;              /* 👈 force full width */
+    table-layout: fixed;      /* 👈 prevents shrinking */
+}
+
+
+/* FORCE SAME STYLE FOR ALL CELLS */
+.history-table th,
+.history-table td {
+    background: rgba(0, 0, 0, 0.55) !important;
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 10px;
+    text-align: center;
+}
+
+/* REMOVE ALTERNATING ROW COLORS COMPLETELY */
+.history-table tr:nth-child(even),
+.history-table tr:nth-child(odd) {
+    background: transparent !important;
+}
+
+/* OPTIONAL: hover (still same theme) */
+.history-table tr:hover td {
+    background: rgba(0, 0, 0, 0.65) !important;
+}
+
+/* Top Navigation Bar */
+.top-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #000000;
+    padding: 15px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.navbar-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+}
+
+/* Logo/Brand Name */
+.navbar-brand {
+    color: white;
+    font-size: 24px;
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+}
+
+.navbar-brand:hover {
+    color: #dddddd;
+    transition: color 0.3s ease;
+}
+
+/* Navigation Links */
+.navbar-links {
+    display: flex;
+    gap: 35px;
+    align-items: center;
+}
+
+.navbar-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+/* Dropdown Container */
+.navbar-links .dropdown {
+    position: relative;
+}
+
+.navbar-links .dropdown > a {
+    cursor: pointer;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #1a1a1a;
+    min-width: 250px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    z-index: 1001;
+}
+
+.dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-menu p {
+    color: white;
+    margin: 8px 0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.dropdown-menu strong {
+    color: #dddddd;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.dropdown-menu a {
+    color: #4a9eff;
+    text-decoration: none;
+}
+
+.dropdown-menu a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+.navbar-links a:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+/* Active link indicator */
+.navbar-links a.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+/* Underline effect on hover */
+.navbar-links a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: #ffffff;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.navbar-links a:hover::after {
+    width: 80%;
+}
+
+/* Add padding to body so content doesn't hide under fixed navbar */
+body {
+    padding-top: 70px;
+}
+
+/* Mobile Menu Toggle Button (Hamburger) */
+.mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+/* Mobile Menu Toggle Button (Hamburger) */
+.mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar-container {
+        padding: 0 20px;
+    }
+    
+    .mobile-menu-toggle {
+        display: block;
+    }
+    
+    .navbar-links {
+        position: fixed;
+        top: 60px;
+        right: -100%;
+        flex-direction: column;
+        background: #000000;
+        width: 250px;
+        height: calc(100vh - 60px);
+        padding: 30px 0;
+        gap: 0;
+        transition: right 0.3s ease;
+        box-shadow: -4px 0 12px rgba(0, 0, 0, 0.5);
+        align-items: flex-start;
+    }
+    
+    .navbar-links.active {
+        right: 0;
+    }
+    
+    .navbar-links a,
+    .navbar-links .dropdown > a {
+        width: 100%;
+        padding: 15px 30px;
+        border-radius: 0;
+        text-align: left;
+    }
+    
+    .navbar-links a::after {
+        display: none;
+    }
+    
+    /* Mobile dropdown */
+    .navbar-links .dropdown {
+        width: 100%;
+    }
+    
+    .navbar-links .dropdown-menu {
+        position: static;
+        opacity: 0;
+        visibility: hidden;
+        max-height: 0;
+        overflow: hidden;
+        transform: none;
+        margin: 0;
+        padding: 0;
+        background: #1a1a1a;
+        transition: all 0.3s ease;
+    }
+    
+    .navbar-links .dropdown.dropdown-active .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        max-height: 500px;
+        padding: 15px 30px;
+    }
+}
+
+/* Alternative: Top info bar style (smaller, info-focused) */
+.top-info-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #000000;
+    padding: 10px 0;
+    font-size: 14px;
+    color: white;
+    z-index: 1000;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.info-bar-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 40px;
+    gap: 30px;
+}
+
+.info-bar-container a {
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.info-bar-container a:hover {
+    color: #dddddd;
+}
+
+.info-bar-container span {
+    color: rgba(255, 255, 255, 0.7);
+}
+

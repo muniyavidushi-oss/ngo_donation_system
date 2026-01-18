@@ -87,8 +87,13 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 
 
 # ---------------- LOGIN ----------------
-@app.route("/login", methods=["POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
+    # 🔹 GET → show login page
+    if request.method == "GET":
+        return render_template("auth.html")
+
+    # 🔹 POST → process login
     email = request.form["email"]
     password = request.form["password"]
 
@@ -118,6 +123,7 @@ def login():
             return redirect("/dashboard")
 
     return render_template("auth.html", login_error="Invalid login credentials")
+
 
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
@@ -205,8 +211,8 @@ def dashboard():
     conn.close()
 
     return render_template("dashboard.html", user=user)
-#######################################################################################################
 
+##################################################################
 RAZORPAY_KEY_ID = "rzp_test_S4S7C7ryb9WlU6"
 RAZORPAY_KEY_SECRET = "uopveSGkMmvNF7Q6CF8JyWqO"
 
@@ -277,43 +283,6 @@ def create_order():
         return jsonify({"error": "Failed to create order"}), 500
 
 
-@app.route("/payment_pending", methods=["POST"])
-def payment_pending():
-    if "user_id" not in session:
-        return jsonify({"success": False, "error": "Unauthorized"}), 401
-
-    try:
-        data = request.get_json()
-        order_id = data.get("order_id")
-        amount = data.get("amount")
-
-        # Convert amount back from paise to rupees
-        amount_in_rupees = float(amount) / 100
-
-        print("="*50)
-        print("PAYMENT PENDING")
-        print("="*50)
-        print(f"Order ID: {order_id}")
-        print(f"Amount: ₹{amount_in_rupees}")
-        print(f"User ID: {session['user_id']}")
-        print("="*50)
-
-        # Save donation as PENDING
-        conn = get_db_connection()
-        conn.execute("""
-            INSERT INTO donations (user_id, amount, status, order_id)
-            VALUES (?, ?, ?, ?)
-        """, (session["user_id"], amount_in_rupees, "pending", order_id))
-        conn.commit()
-        conn.close()
-
-        return jsonify({"success": True})
-
-    except Exception as e:
-        print(f"Error recording pending payment: {str(e)}")
-        return jsonify({"success": False, "error": str(e)}), 500
-
-
 @app.route("/payment_success", methods=["POST"])
 def payment_success():
     if "user_id" not in session:
@@ -348,22 +317,12 @@ def payment_success():
             # Convert amount back from paise to rupees
             amount_in_rupees = float(amount) / 100
 
-            # Update donation status from PENDING to SUCCESS
+            # Save donation as SUCCESS
             conn = get_db_connection()
-            result = conn.execute("""
-                UPDATE donations 
-                SET status = ?, payment_id = ?, updated_at = CURRENT_TIMESTAMP
-                WHERE order_id = ? AND user_id = ?
-            """, ("success", razorpay_payment_id, razorpay_order_id, session["user_id"]))
-            
-            # If no pending record was found, insert a new success record
-            if result.rowcount == 0:
-                print("⚠️ No pending record found, inserting new success record")
-                conn.execute("""
-                    INSERT INTO donations (user_id, amount, status, order_id, payment_id)
-                    VALUES (?, ?, ?, ?, ?)
-                """, (session["user_id"], amount_in_rupees, "success", razorpay_order_id, razorpay_payment_id))
-            
+            conn.execute("""
+                INSERT INTO donations (user_id, amount, status)
+                VALUES (?, ?, ?)
+            """, (session["user_id"], amount_in_rupees, "success"))
             conn.commit()
             conn.close()
 
@@ -373,21 +332,12 @@ def payment_success():
         except SignatureVerificationError as e:
             print(f"❌ Signature verification failed: {str(e)}")
             
-            # Update donation status to FAILED
+            # Save donation as FAILED
             conn = get_db_connection()
-            result = conn.execute("""
-                UPDATE donations 
-                SET status = ?, updated_at = CURRENT_TIMESTAMP
-                WHERE order_id = ? AND user_id = ?
-            """, ("failed", razorpay_order_id, session["user_id"]))
-            
-            # If no pending record found, insert failed record
-            if result.rowcount == 0:
-                conn.execute("""
-                    INSERT INTO donations (user_id, amount, status, order_id)
-                    VALUES (?, ?, ?, ?)
-                """, (session["user_id"], float(amount) / 100, "failed", razorpay_order_id))
-            
+            conn.execute("""
+                INSERT INTO donations (user_id, amount, status)
+                VALUES (?, ?, ?)
+            """, (session["user_id"], float(amount) / 100, "failed"))
             conn.commit()
             conn.close()
 
@@ -406,7 +356,6 @@ def payment_failed():
     try:
         data = request.get_json()
         amount = data.get("amount")
-        order_id = data.get("order_id")  # Get order_id if available
 
         # Convert amount back from paise to rupees
         amount_in_rupees = float(amount) / 100
@@ -415,36 +364,14 @@ def payment_failed():
         print("PAYMENT FAILED/CANCELLED")
         print("="*50)
         print(f"Amount: ₹{amount_in_rupees}")
-        if order_id:
-            print(f"Order ID: {order_id}")
         print("="*50)
 
+        # Save donation as FAILED
         conn = get_db_connection()
-        
-        # Try to update existing pending record by order_id first
-        if order_id:
-            result = conn.execute("""
-                UPDATE donations 
-                SET status = ?, updated_at = CURRENT_TIMESTAMP
-                WHERE order_id = ? AND user_id = ?
-            """, ("failed", order_id, session["user_id"]))
-        else:
-            # Fallback: update most recent pending donation with matching amount
-            result = conn.execute("""
-                UPDATE donations 
-                SET status = ?, updated_at = CURRENT_TIMESTAMP
-                WHERE user_id = ? AND amount = ? AND status = 'pending'
-                ORDER BY created_at DESC LIMIT 1
-            """, ("failed", session["user_id"], amount_in_rupees))
-
-        # If no pending record found, insert new failed record
-        if result.rowcount == 0:
-            print("⚠️ No pending record found, inserting new failed record")
-            conn.execute("""
-                INSERT INTO donations (user_id, amount, status, order_id)
-                VALUES (?, ?, ?, ?)
-            """, (session["user_id"], amount_in_rupees, "failed", order_id))
-
+        conn.execute("""
+            INSERT INTO donations (user_id, amount, status)
+            VALUES (?, ?, ?)
+        """, (session["user_id"], amount_in_rupees, "failed"))
         conn.commit()
         conn.close()
 
@@ -487,11 +414,9 @@ def payment_webhook():
         # Handle different events
         if event == "payment.captured":
             payment = data.get("payload", {}).get("payment", {}).get("entity", {})
-            # Process successful payment
             print("✅ Payment captured successfully")
         elif event == "payment.failed":
             payment = data.get("payload", {}).get("payment", {}).get("entity", {})
-            # Process failed payment
             print("❌ Payment failed")
 
         return jsonify({"status": "ok"}), 200
@@ -499,25 +424,13 @@ def payment_webhook():
     except SignatureVerificationError:
         print("❌ Webhook signature verification failed")
         return jsonify({"status": "invalid signature"}), 400
+    
+#############################################################################
 
-# ---------------- DONATE ----------------
-@app.route("/donate", methods=["POST"])
-def donate():
-    if "user_id" not in session:
-        return redirect("/")
-
-    amount = request.form["amount"]
-    status = random.choice(["success", "pending", "failed"])
-
-    conn = get_db_connection()
-    conn.execute("""
-        INSERT INTO donations (user_id, amount, status)
-        VALUES (?, ?, ?)
-    """, (session["user_id"], amount, status))
-    conn.commit()
-    conn.close()
-
-    return redirect("/history")
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
 
 
 # ---------------- DONATION HISTORY ----------------
@@ -535,7 +448,6 @@ def history():
     conn.close()
 
     return render_template("history.html", donations=donations)
-
 # ---------------- ADMIN DASHBOARD ----------------
 @app.route("/admin")
 def admin():

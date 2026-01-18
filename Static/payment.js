@@ -81,8 +81,7 @@ function makeDonation() {
                                 'Content-Type': 'application/json',
                             },
                             body: JSON.stringify({
-                                amount: obj.amount,
-                                order_id: obj.order_id
+                                amount: obj.amount
                             })
                         })
                         .then(() => {
@@ -104,24 +103,6 @@ function makeDonation() {
 
             console.log("Starting Razorpay payment...");
             var rzp = new Razorpay(options);
-            
-            // Mark payment as PENDING when Razorpay modal is ready
-            rzp.on('payment.ready', function() {
-                console.log("Payment initiated - marking as pending");
-                fetch('/payment_pending', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        order_id: obj.order_id,
-                        amount: obj.amount
-                    })
-                })
-                .catch(err => {
-                    console.error("Error recording pending payment:", err);
-                });
-            });
             
             rzp.on('payment.failed', function(response) {
                 console.error("Razorpay Error:", response.error);

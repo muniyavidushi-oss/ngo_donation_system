@@ -1,13 +1,24 @@
 body {
-    font-family: Arial, sans-serif;
-    background: #f6f7fb;
-    margin: 0;
-    padding: 40px;
+    background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+        url("/static/images/poverty.jpeg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    color: white;
+    
 }
 
 .title {
     text-align: center;
-    font-size: 36px;
+    font-size: 50px;
     margin-bottom: 50px;
 }
 
@@ -18,13 +29,16 @@ body {
 }
 
 .card {
-    background: white;
+    background: rgba(0, 0, 0, 0.6);
     width: 320px;
-    height: 180px;
+    height: 120px;
+    margin-top: 100px; 
     border-radius: 20px;
     padding: 30px;
     text-align: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    box-shadow: 0 10px 25px rgba(238, 233, 233, 0.08);
+    color: white;
+    text-decoration: none;
 }
 
 .card h2 {
@@ -34,7 +48,7 @@ body {
 
 .card p {
     font-size: 16px;
-    color: #555;
+    color: #ffffff;
 }
 .search-box {
     margin: 30px 0;
@@ -42,18 +56,18 @@ body {
 }
 
 .search-box input {
-    width: 300px;
+    width: 500px;
     padding: 10px;
     border-radius: 6px;
-    border: 1px solid #ccc;
+    border: 1px solid #0c0c0c;
 }
 
 .search-box button {
     padding: 10px 15px;
     margin-left: 10px;
     border: none;
-    background: #2e7d32;
-    color: white;
+    background: #fcfdfc;
+    color: rgb(3, 3, 3);
     border-radius: 6px;
     cursor: pointer;
 }
@@ -62,15 +76,86 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    background: white;
+    background: rgba(16, 15, 15, 0.7); /* slightly transparent black */
 }
 
 table th, table td {
     padding: 12px;
-    border: 1px solid #ddd;
+    border: 1px solid #fcf9f9;
     text-align: left;
+    color: #ffffff; /* ensures text is readable on dark bg */
 }
 
 table th {
-    background: #f0f0f0;
+    background: rgba(15, 15, 15, 0.7); /* slightly transparent header */
 }
+
+
+.cardnew {
+    display: flex;
+    justify-content: center;
+    gap: 40px;           /* space between cards */
+    flex-wrap: wrap;      /* wrap cards on small screens */
+    margin-top: 50px;     /* adjust spacing from top */
+}
+
+.cardn {
+    background: rgba(0, 0, 0, 0.6); /* semi-transparent black */
+    width: 200px;
+    height: 80px;
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(238, 233, 233, 0.08);
+    color: white;
+    text-decoration: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+
+
+/* Hover effect */
+.cardn:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(238, 233, 233, 0.2);
+}
+
+.cardn h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.cardn p {
+    font-size: 18px;
+    color: #ffffff;
+}
+
+.download-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.download-btn {
+    background-color: #ffffff;   /* white background */
+    color: #000000;              /* black text */
+    padding: 14px 28px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+/* Hover effect */
+.download-btn:hover {
+    background-color: #000000;
+    color: #ffffff;
+    border-color: #ffffff;
+    transform: translateY(-3px);
+}
+
+
+
