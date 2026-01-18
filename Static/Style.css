@@ -1,73 +1,170 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f2f2f2;
+body{
+    background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+        url("/static/images/poorchild.jpeg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }
+/* ================= HEADER ================= */
 
-.box {
-    width: 400px;
-    background: white;
-    padding: 20px;
-    margin: 20px auto;
-    border-radius: 6px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
+.top-header {
+    position: fixed;
+    top: 0;
+    left: 0;
 
-h2, h3 {
-    text-align: center;
-}
-
-input, textarea, button {
     width: 100%;
-    padding: 8px;
-    margin-top: 5px;
+    height: 90px;
+
+    padding: 0 80px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: #0f172a;
+    z-index: 1000;
 }
 
-button {
-    background-color: #4CAF50;
+/* BRAND */
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.logo {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-text h1 {
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0;
+}
+
+.brand-text p {
+    color: #cfd8ff;
+    font-size: 14px;
+    margin-top: 2px;
+}
+
+/* CONTACT BUTTON */
+.contact-btn {
+    background: #4f7cff;
     color: white;
+    padding: 12px 32px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.25s;
+     margin-right:150px ;
+}
+
+.contact-btn:hover {
+    background: #3b6cff;
+}
+.page-bg {
+    min-height: 100vh;
+    background: transparent;
+    padding-top: 120px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-card {
+    width: 90%;
+    max-width: 1200px;
+
+    display: flex;
+    gap: 60px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* LEFT COLLAGE CARD */
+.left-card {
+    width: 50%;
+    height: 650px;
+
+    border-radius: 25px;
+    overflow: hidden;
+
+    /* transparent glass-like background */
+    background: #0f172a;
+    
+}
+
+.left-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* RIGHT FORM CARD */
+.right-card {
+    width: 50%;
+    height: 600px;
+
+     background: #0f172a;
+    border-radius: 25px;
+
+    padding: 30px;
+    color: white;
+    font-size: 22px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    box-shadow: 0 30px 70px rgba(0,0,0,0.45);
+}
+.right-card input,
+.right-card textarea {
+    width: 90%;
+    padding: 14px;
+    margin-bottom: 16px;
+    border-radius: 10px;
     border: none;
+    outline: none;
+}
+
+.btn {
+    width: 95%;
+    padding: 14px;
+    background: #4f7cff;
+    border: none;
+    color: white;
+    border-radius: 10px;
+    font-size: 16px;
     cursor: pointer;
 }
 
-button:hover {
-    background-color: #45a049;
+.btn:hover {
+    background: #3b6cff;
 }
 
-.or-text {
-    text-align: center;
-    font-weight: bold;
-    margin: 10px;
+.login-link {
+    margin-bottom: 25px;
+    color: #ccc;
 }
 
-.history-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+.login-link a {
+    color:#6fa8ff;
+    text-decoration: none;
 }
-
-.history-table th,
-.history-table td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: center;
+.forgot-link{
+    color: white ;          
+    text-decoration: none;
+    font-size: 20px;
 }
-
-.history-table th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-}
-
-.history-table tr:nth-child(even) {
-    background-color: #fafafa;
-}
-
-.history-table tr:hover {
-    background-color: #f1f1f1;
-}
-
-.history-box {
-    width: 90%;
-    max-width: 1100px;
-}
-
-
