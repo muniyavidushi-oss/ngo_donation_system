@@ -87,10 +87,6 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 # ---------------- LOGIN ----------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
-
-    if request.method == "GET":
-        return render_template("login.html")
-
     email = request.form["email"]
     password = request.form["password"]
 
@@ -120,6 +116,7 @@ def login():
             return redirect("/dashboard")
 
     return render_template("login.html", error="Invalid email or password")
+
 
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
@@ -207,8 +204,8 @@ def dashboard():
     conn.close()
 
     return render_template("dashboard.html", user=user)
-#######################################################################################################
 
+##################################################################
 RAZORPAY_KEY_ID = "rzp_test_S4S7C7ryb9WlU6"
 RAZORPAY_KEY_SECRET = "uopveSGkMmvNF7Q6CF8JyWqO"
 
@@ -409,37 +406,24 @@ def payment_webhook():
         # Handle different events
         if event == "payment.captured":
             payment = data.get("payload", {}).get("payment", {}).get("entity", {})
-            # Process successful payment
             print("✅ Payment captured successfully")
         elif event == "payment.failed":
             payment = data.get("payload", {}).get("payment", {}).get("entity", {})
             # Process failed payment
-            print(" Payment failed")
+            print("❌ Payment failed")
 
         return jsonify({"status": "ok"}), 200
 
     except SignatureVerificationError:
         print(" Webhook signature verification failed")
         return jsonify({"status": "invalid signature"}), 400
+    
+#############################################################################
 
-# ---------------- DONATE ----------------
-@app.route("/donate", methods=["POST"])
-def donate():
-    if "user_id" not in session:
-        return redirect("/")
-
-    amount = request.form["amount"]
-    status = random.choice(["success", "pending", "failed"])
-
-    conn = get_db_connection()
-    conn.execute("""
-        INSERT INTO donations (user_id, amount, status)
-        VALUES (?, ?, ?)
-    """, (session["user_id"], amount, status))
-    conn.commit()
-    conn.close()
-
-    return redirect("/history")
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
 
 
 # ---------------- DONATION HISTORY ----------------
@@ -457,7 +441,6 @@ def history():
     conn.close()
 
     return render_template("history.html", donations=donations)
-
 # ---------------- ADMIN DASHBOARD ----------------
 @app.route("/admin")
 def admin():
