@@ -5,6 +5,8 @@ database_old.db
 database_old2.db
 database.db
 databaseo.db
+database1.db
+database2.db
 
 # Ignore admin-panel folder
 admin-panel/

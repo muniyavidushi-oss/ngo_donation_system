@@ -50,9 +50,8 @@ function makeDonation() {
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
-                            // FIX: Redirect to dashboard instead of payment_success
                             alert("Payment successful! Thank you for your donation.");
-                            window.location.href = `/dashboard`;  // Changed this line
+                            window.location.href = `/dashboard`;  
                         } else {
                             alert("Payment verification failed");
                         }
@@ -82,7 +81,8 @@ function makeDonation() {
                                 'Content-Type': 'application/json',
                             },
                             body: JSON.stringify({
-                                amount: obj.amount
+                                amount: obj.amount,
+                                order_id: obj.order_id
                             })
                         })
                         .then(() => {
@@ -105,6 +105,24 @@ function makeDonation() {
             console.log("Starting Razorpay payment...");
             var rzp = new Razorpay(options);
             
+            // Mark payment as PENDING when Razorpay modal is ready
+            rzp.on('payment.ready', function() {
+                console.log("Payment initiated - marking as pending");
+                fetch('/payment_pending', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        order_id: obj.order_id,
+                        amount: obj.amount
+                    })
+                })
+                .catch(err => {
+                    console.error("Error recording pending payment:", err);
+                });
+            });
+            
             rzp.on('payment.failed', function(response) {
                 console.error("Razorpay Error:", response.error);
                 
@@ -114,7 +132,8 @@ function makeDonation() {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        amount: obj.amount
+                        amount: obj.amount,
+                        order_id: obj.order_id
                     })
                 })
                 .then(() => {
@@ -133,7 +152,6 @@ function makeDonation() {
             alert("Payment failed to initialize: " + err.message);
         });
 }
-
 
 
     

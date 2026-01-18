@@ -207,6 +207,43 @@ def create_order():
         return jsonify({"error": "Failed to create order"}), 500
 
 
+@app.route("/payment_pending", methods=["POST"])
+def payment_pending():
+    if "user_id" not in session:
+        return jsonify({"success": False, "error": "Unauthorized"}), 401
+
+    try:
+        data = request.get_json()
+        order_id = data.get("order_id")
+        amount = data.get("amount")
+
+        # Convert amount back from paise to rupees
+        amount_in_rupees = float(amount) / 100
+
+        print("="*50)
+        print("PAYMENT PENDING")
+        print("="*50)
+        print(f"Order ID: {order_id}")
+        print(f"Amount: ₹{amount_in_rupees}")
+        print(f"User ID: {session['user_id']}")
+        print("="*50)
+
+        # Save donation as PENDING
+        conn = get_db_connection()
+        conn.execute("""
+            INSERT INTO donations (user_id, amount, status, order_id)
+            VALUES (?, ?, ?, ?)
+        """, (session["user_id"], amount_in_rupees, "pending", order_id))
+        conn.commit()
+        conn.close()
+
+        return jsonify({"success": True})
+
+    except Exception as e:
+        print(f"Error recording pending payment: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 @app.route("/payment_success", methods=["POST"])
 def payment_success():
     if "user_id" not in session:
@@ -241,26 +278,46 @@ def payment_success():
             # Convert amount back from paise to rupees
             amount_in_rupees = float(amount) / 100
 
-            # Save donation as SUCCESS
+            # Update donation status from PENDING to SUCCESS
             conn = get_db_connection()
-            conn.execute("""
-                INSERT INTO donations (user_id, amount, status)
-                VALUES (?, ?, ?)
-            """, (session["user_id"], amount_in_rupees, "success"))
+            result = conn.execute("""
+                UPDATE donations 
+                SET status = ?, payment_id = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE order_id = ? AND user_id = ?
+            """, ("success", razorpay_payment_id, razorpay_order_id, session["user_id"]))
+            
+            # If no pending record was found, insert a new success record
+            if result.rowcount == 0:
+                print("⚠️ No pending record found, inserting new success record")
+                conn.execute("""
+                    INSERT INTO donations (user_id, amount, status, order_id, payment_id)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (session["user_id"], amount_in_rupees, "success", razorpay_order_id, razorpay_payment_id))
+            
             conn.commit()
             conn.close()
 
+            print(f"✅ Donation recorded: ₹{amount_in_rupees}")
             return jsonify({"success": True})
 
         except SignatureVerificationError as e:
-            print(f" Signature verification failed: {str(e)}")
+            print(f"❌ Signature verification failed: {str(e)}")
             
-            # Save donation as FAILED
+            # Update donation status to FAILED
             conn = get_db_connection()
-            conn.execute("""
-                INSERT INTO donations (user_id, amount, status)
-                VALUES (?, ?, ?)
-            """, (session["user_id"], float(amount) / 100, "failed"))
+            result = conn.execute("""
+                UPDATE donations 
+                SET status = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE order_id = ? AND user_id = ?
+            """, ("failed", razorpay_order_id, session["user_id"]))
+            
+            # If no pending record found, insert failed record
+            if result.rowcount == 0:
+                conn.execute("""
+                    INSERT INTO donations (user_id, amount, status, order_id)
+                    VALUES (?, ?, ?, ?)
+                """, (session["user_id"], float(amount) / 100, "failed", razorpay_order_id))
+            
             conn.commit()
             conn.close()
 
@@ -279,6 +336,7 @@ def payment_failed():
     try:
         data = request.get_json()
         amount = data.get("amount")
+        order_id = data.get("order_id")  # Get order_id if available
 
         # Convert amount back from paise to rupees
         amount_in_rupees = float(amount) / 100
@@ -287,14 +345,36 @@ def payment_failed():
         print("PAYMENT FAILED/CANCELLED")
         print("="*50)
         print(f"Amount: ₹{amount_in_rupees}")
+        if order_id:
+            print(f"Order ID: {order_id}")
         print("="*50)
 
-        # Save donation as FAILED
         conn = get_db_connection()
-        conn.execute("""
-            INSERT INTO donations (user_id, amount, status)
-            VALUES (?, ?, ?)
-        """, (session["user_id"], amount_in_rupees, "failed"))
+        
+        # Try to update existing pending record by order_id first
+        if order_id:
+            result = conn.execute("""
+                UPDATE donations 
+                SET status = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE order_id = ? AND user_id = ?
+            """, ("failed", order_id, session["user_id"]))
+        else:
+            # Fallback: update most recent pending donation with matching amount
+            result = conn.execute("""
+                UPDATE donations 
+                SET status = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE user_id = ? AND amount = ? AND status = 'pending'
+                ORDER BY created_at DESC LIMIT 1
+            """, ("failed", session["user_id"], amount_in_rupees))
+
+        # If no pending record found, insert new failed record
+        if result.rowcount == 0:
+            print("⚠️ No pending record found, inserting new failed record")
+            conn.execute("""
+                INSERT INTO donations (user_id, amount, status, order_id)
+                VALUES (?, ?, ?, ?)
+            """, (session["user_id"], amount_in_rupees, "failed", order_id))
+
         conn.commit()
         conn.close()
 
@@ -342,12 +422,12 @@ def payment_webhook():
         elif event == "payment.failed":
             payment = data.get("payload", {}).get("payment", {}).get("entity", {})
             # Process failed payment
-            print(" Payment failed")
+            print("❌ Payment failed")
 
         return jsonify({"status": "ok"}), 200
 
     except SignatureVerificationError:
-        print(" Webhook signature verification failed")
+        print("❌ Webhook signature verification failed")
         return jsonify({"status": "invalid signature"}), 400
 
 # ---------------- DONATE ----------------
