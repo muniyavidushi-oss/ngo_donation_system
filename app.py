@@ -87,6 +87,10 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 # ---------------- LOGIN ----------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
+
+    if request.method == "GET":
+        return render_template("login.html")
+
     email = request.form["email"]
     password = request.form["password"]
 
@@ -95,27 +99,31 @@ def login():
         "SELECT * FROM users WHERE email=? AND password=?",
         (email, password)
     ).fetchone()
+
+    # ❌ invalid credentials
+    if not user:
+        conn.close()
+        return render_template("login.html", login_error="Invalid credentials")
+
+    # ✅ INSERT LOGIN LOG
+    conn.execute(
+        "INSERT INTO login_logs (user_id) VALUES (?)",
+        (user["id"],)
+    )
+    conn.commit()
     conn.close()
 
-    if user:
-        session["user_id"] = user["id"]
-        session["role"] = user["role"]
+    # ✅ set session
+    session["user_id"] = user["id"]
+    session["role"] = user["role"]
 
-        # log login
-        conn = get_db_connection()
-        conn.execute(
-            "INSERT INTO login_logs (user_id) VALUES (?)",
-            (user["id"],)
-        )
-        conn.commit()
-        conn.close()
+    # redirect
+    if user["role"] == "admin":
+        return redirect("/admin")
+    else:
+        return redirect("/dashboard")
 
-        if user["role"] == "admin":
-            return redirect("/admin")
-        else:
-            return redirect("/dashboard")
 
-    return render_template("login.html", error="Invalid email or password")
 
 
 @app.route("/forgot-password", methods=["GET", "POST"])
