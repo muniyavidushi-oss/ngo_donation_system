@@ -136,7 +136,7 @@ cd ngo_donation_system
 ```bash
 python create_db.py
 Running this script creates three database tables: Registered Users , Login Users and Donations.
-
+```
 ---
 
 ### 3. Run the Application
