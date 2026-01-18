@@ -40,7 +40,7 @@ Admins can:
 
 All admin-related files follow the naming convention:
 - `admin_*.html`
-- `admin_*.css`
+- `admin.css`
 
 ---
 
@@ -52,6 +52,13 @@ Users can:
 - Make donations using Razorpay (test mode)
 - View donation history
 - Logout securely
+
+- All user-related files :
+- `dashboard.html`
+- `login.html`
+- `auth.html`
+- `history.html`
+- `user.css`
 
 ---
 
@@ -66,7 +73,7 @@ Users can:
 
 ## Tech Stack
 - Backend: Python (Flask)
-- Frontend: HTML, CSS, Jinja2
+- Frontend: HTML, CSS
 - Database: SQLite
 - Payments: Razorpay (Test Mode)
 - Version Control: Git & GitHub
@@ -74,7 +81,7 @@ Users can:
 ---
 
 ## Project Structure
-
+```
 ngo_donation_system/
 │
 ├── app.py
@@ -82,45 +89,58 @@ ngo_donation_system/
 ├── database.db
 │
 ├── templates/
-│ ├── admin.html
-│ ├── admin_users.html
-│ ├── admin_donations.html
-│ ├── dashboard.html
-│ ├── history.html
-│ ├── login.html
-│ ├── auth.html
-│ ├── reset_password.html
-│ └── verify_otp.html
+│   ├── admin.html
+│   ├── admin_users.html
+│   ├── admin_donations.html
+│   ├── admin_logins.html
+│   ├── dashboard.html
+│   ├── history.html
+│   ├── login.html
+│   ├── auth.html
+│   ├── register_success.html
+│   ├── forgot_password.html
+│   ├── reset_password.html
+│   └── verify_otp.html
 │
 ├── static/
-│ ├── 
-│ │ ├── admin_*.css
-│ │ └── style.css
-│ │
-│ ├── 
-│ │ └── payment.js
-│ │
-│ └── images/
-│ ├── poverty.jpeg
-│ ├── collage.png
-│ ├── poorchild.jpeg
-│ └── logo.png
-
+│   ├── css/
+│   │   ├── admin_users.css
+│   │   ├── admin_donations.css
+│   │   ├── admin_logins.css
+│   │   └── style.css
+│   │
+│   ├── js/
+│   │   └── payment.js
+│   │
+│   └── images/
+│       ├── poverty.jpeg
+│       ├── collage.png
+│       ├── poorchild.jpeg
+│       └── logo.png
+│
+└── README.md
+```
 
 ## How to Run the Project
 
 ### 1. Clone the Repository
 git clone <repository-link>
+
 cd ngo_donation_system
 
 ---
 
 ### 2. Create the Database (Run Once)
+### Create the Database (Run Once)
+
+```bash
 python create_db.py
+Running this script creates three database tables: Registered Users , Login Users and Donations.
 
 ---
 
 ### 3. Run the Application
+```bash
 python app.py
 
 
@@ -135,7 +155,7 @@ python app.py
 4. Admins access the admin dashboard
 5. Users access the user dashboard
 6. Donations are made via Razorpay (test mode)
-7. Donation history is stored and viewable
+7. Donation history is stored and viewable in real time to both users and admins
 
 ---
 
