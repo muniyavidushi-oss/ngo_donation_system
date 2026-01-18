@@ -124,9 +124,12 @@ ngo_donation_system/
 ## How to Run the Project
 
 ### 1. Clone the Repository
-git clone <repository-link>
-
+```bash
+git clone https://github.com/muniyavidushi-oss/ngo_donation_system.git
+```
+```bash
 cd ngo_donation_system
+```
 
 ---
 
@@ -142,7 +145,7 @@ python create_db.py
 ### 3. Run the Application
 ```bash
 python app.py
-
+```
 
 ---
 
