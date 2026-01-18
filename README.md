@@ -103,13 +103,13 @@ ngo_donation_system/
 │   └── verify_otp.html
 │
 ├── static/
-│   ├── css/
+│   ├── 
 │   │   ├── admin_users.css
 │   │   ├── admin_donations.css
 │   │   ├── admin_logins.css
 │   │   └── style.css
 │   │
-│   ├── js/
+│   ├── 
 │   │   └── payment.js
 │   │
 │   └── images/
@@ -132,10 +132,10 @@ cd ngo_donation_system
 
 ### 2. Create the Database (Run Once)
 ### Create the Database (Run Once)
-
+Running this script creates three database tables: Registered Users , Login Users and Donations.
 ```bash
 python create_db.py
-Running this script creates three database tables: Registered Users , Login Users and Donations.
+
 ```
 ---
 
