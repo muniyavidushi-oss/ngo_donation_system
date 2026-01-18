@@ -2,23 +2,104 @@
 <html>
 <head>
     <title>Verify OTP</title>
+
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image:
+                linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+                url("/static/images/poverty.jpeg");
+            background-size: cover;
+            background-position: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .otp-box {
+            width: 500px;
+            background: rgba(0, 0, 0, 0.65);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            color: white;
+            text-align: center;
+        }
+
+        .otp-box h2 {
+            margin-bottom: 25px;
+            font-size: 28px;
+        }
+
+        .otp-box .mock-otp {
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #fafa0f;
+        }
+
+        .otp-box label {
+            display: block;
+            text-align: left;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .otp-box input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 6px;
+            border: none;
+            font-size: 16px;
+            margin-bottom: 25px;
+            box-sizing: border-box;
+            text-align: center;
+            letter-spacing: 4px;
+        }
+
+        .otp-box button {
+            width: 100%;
+            padding: 14px;
+            background: #fafa0f;
+            color: black;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .otp-box button:hover {
+            background: #e5e600;
+        }
+
+        .error-text {
+            color: #ff6b6b;
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
+
 <body>
 
-<h2>Verify OTP</h2>
+<div class="otp-box">
+    <h2>Verify OTP</h2>
 
-<!-- MOCK OTP DISPLAY -->
-<p><b>Your OTP (Mock): {{ otp }}</b></p>
+    <!-- MOCK OTP DISPLAY -->
+    <p class="mock-otp"><b>Your OTP (Mock): {{ otp }}</b></p>
 
-{% if error %}
-<p style="color:red;">{{ error }}</p>
-{% endif %}
+    {% if error %}
+        <p class="error-text">{{ error }}</p>
+    {% endif %}
 
-<form action="/verify-otp" method="POST">
-    <label>Enter OTP:</label><br>
-    <input type="text" name="otp" required><br><br>
-    <button type="submit">Verify OTP</button>
-</form>
+    <form action="/verify-otp" method="POST">
+        <label>Enter OTP</label>
+        <input type="text" name="otp" required>
+        <button type="submit">Verify OTP</button>
+    </form>
+</div>
 
 </body>
 </html>
+
