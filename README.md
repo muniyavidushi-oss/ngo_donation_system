@@ -73,7 +73,7 @@ Users can:
 
 ## Tech Stack
 - Backend: Python (Flask)
-- Frontend: HTML, CSS
+- Frontend: HTML, CSS , javascript
 - Database: SQLite
 - Payments: Razorpay (Test Mode)
 - Version Control: Git & GitHub
