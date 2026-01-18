@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify OTP</title>
+</head>
+<body>
+
+<h2>Verify OTP</h2>
+
+<!-- MOCK OTP DISPLAY -->
+<p><b>Your OTP (Mock): {{ otp }}</b></p>
+
+{% if error %}
+<p style="color:red;">{{ error }}</p>
+{% endif %}
+
+<form action="/verify-otp" method="POST">
+    <label>Enter OTP:</label><br>
+    <input type="text" name="otp" required><br><br>
+    <button type="submit">Verify OTP</button>
+</form>
+
+</body>
+</html>

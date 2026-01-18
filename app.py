@@ -119,6 +119,76 @@ def login():
 
     return render_template("auth.html", login_error="Invalid login credentials")
 
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        email = request.form["email"]
+
+        conn = get_db_connection()
+        user = conn.execute(
+            "SELECT * FROM users WHERE email=?",
+            (email,)
+        ).fetchone()
+        conn.close()
+
+        if not user:
+            return render_template(
+                "forgot_password.html",
+                error="Email not registered"
+            )
+
+        # Generate OTP (mock)
+        otp = random.randint(100000, 999999)
+
+        session["reset_otp"] = otp
+        session["reset_email"] = email
+
+        return render_template(
+            "verify_otp.html",
+            otp=otp   # MOCK OTP shown
+        )
+
+    return render_template("forgot_password.html")
+
+@app.route("/verify-otp", methods=["POST"])
+def verify_otp():
+    entered_otp = request.form["otp"]
+
+    if "reset_otp" not in session:
+        return redirect("/forgot-password")
+
+    if entered_otp == str(session["reset_otp"]):
+        return redirect("/reset-password")
+
+    return render_template(
+        "verify_otp.html",
+        error="Invalid OTP",
+        otp=session["reset_otp"]
+    )
+
+@app.route("/reset-password", methods=["GET", "POST"])
+def reset_password():
+    if "reset_email" not in session:
+        return redirect("/")
+
+    if request.method == "POST":
+        new_password = request.form["password"]
+
+        conn = get_db_connection()
+        conn.execute(
+            "UPDATE users SET password=? WHERE email=?",
+            (new_password, session["reset_email"])
+        )
+        conn.commit()
+        conn.close()
+
+        # Clear OTP session
+        session.pop("reset_otp", None)
+        session.pop("reset_email", None)
+
+        return redirect("/")
+
+    return render_template("reset_password.html")
 
 
 # ---------------- USER DASHBOARD ----------------
