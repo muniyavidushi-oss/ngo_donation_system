@@ -123,7 +123,7 @@ ngo_donation_system/
 
 ## How to Run the Project
 
-### Install the requirements
+### 1. Install the requirements
  Run this command to install the requirements.
  ```bash
 pip install razorpay
@@ -135,7 +135,7 @@ pip install flask
 ```
 ---
 
-### 1. Clone the Repository
+### 2. Clone the Repository
 ```bash
 git clone https://github.com/muniyavidushi-oss/ngo_donation_system.git
 ```
@@ -146,7 +146,7 @@ cd ngo_donation_system
 ---
 
  
-### Create the Database (Run Once)
+### 3. Create the Database (Run Once)
 Running this script creates three database tables: Registered Users , Login Users and Donations.
 ```bash
 python create_db.py
@@ -154,7 +154,7 @@ python create_db.py
 ```
 ---
 
-### 3. Run the Application
+### 4. Run the Application
 ```bash
 python app.py
 ```
